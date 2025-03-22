@@ -1,0 +1,33 @@
+// STEP 1: Create a function to fetch categories and select a random one
+function getRandomCategoryShortName(categories) {
+  var randomIndex = Math.floor(Math.random() * categories.length);
+  return categories[randomIndex].short_name; // Selects a random short_name
+}
+
+// STEP 2: Modify the special category loading functionality
+(function (global) {
+  var dc = global.$dc;
+
+  var homeHtmlUrl = "snippets/home-snippet.html";
+  var allCategoriesUrl = "https://davids-restaurant.herokuapp.com/categories.json"; // API to fetch categories
+
+  // Original function modified to include a random category
+  dc.loadHomePage = function () {
+    // Fetch the home page snippet
+    $ajaxUtils.sendGetRequest(homeHtmlUrl, function (homeHtml) {
+      // Fetch categories from API
+      $ajaxUtils.sendGetRequest(allCategoriesUrl, function (categories) {
+        var randomCategoryShortName = getRandomCategoryShortName(categories);
+
+        // Replace placeholder {{randomCategoryShortName}} in the snippet
+        var homeHtmlToInsert = homeHtml.replace("{{randomCategoryShortName}}", "'" + randomCategoryShortName + "'");
+
+        // Insert updated content into the main page
+        insertHtml("#main-content", homeHtmlToInsert);
+      });
+    });
+  };
+
+  // Call the modified home page loading function
+  dc.loadHomePage();
+})(window);
